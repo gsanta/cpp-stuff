@@ -1,0 +1,17 @@
+version: "3"
+
+services:
+  tests-coverage:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    volumes:
+      - .:/src
+    working_dir: /src
+    command: >
+      sh -c '
+        mkdir -p build/tests-coverage
+        cmake -Bbuild/tests-coverage -DCODE_COVERAGE=ON -DCOVERAGE_REPORTER="$COVERAGE_REPORTER" -S.
+        cmake --build build/tests-coverage
+        cmake --build build/tests-coverage --target coverage
+      '
