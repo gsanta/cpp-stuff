@@ -18,6 +18,7 @@ FetchContent_MakeAvailable(Catch2)
 set(ALGORITHMS
     segmentation_tree
     red_black_tree
+    quick_sort
 )
 
 set(CPP_LANG_FEATURES
@@ -64,6 +65,7 @@ set(TEST "unit_test")
 file(GLOB_RECURSE TEST_SOURCES 
     "src/algorithms/segmentation_tree/test.cpp"
     "src/algorithms/red_black_tree/test.cpp"
+    "src/algorithms/quick_sort/test.cpp"
 )
 
 if(CODE_COVERAGE)
