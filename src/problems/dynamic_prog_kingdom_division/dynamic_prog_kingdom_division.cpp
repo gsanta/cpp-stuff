@@ -111,39 +111,6 @@ int main()
 
     file.close();
 
-    // ofstream fout(getenv("OUTPUT_PATH"));
-
-    // string t_temp;
-    // getline(cin, t_temp);
-
-    // int t = stoi(ltrim(rtrim(t_temp)));
-
-    // for (int t_itr = 0; t_itr < t; t_itr++) {
-    //     string n_temp;
-    //     getline(cin, n_temp);
-
-    //     int n = stoi(ltrim(rtrim(n_temp)));
-
-    //     string arr_temp_temp;
-    //     getline(cin, arr_temp_temp);
-
-    //     vector<string> arr_temp = split(rtrim(arr_temp_temp));
-
-    //     vector<int> arr(n);
-
-    //     for (int i = 0; i < n; i++) {
-    //         int arr_item = stoi(arr_temp[i]);
-
-    //         arr[i] = arr_item;
-    //     }
-
-    //     int result = equal(arr);
-
-    //     fout << result << "\n";
-    // }
-
-    // fout.close();
-
     int result = kingdomDivision(n, roads);
 
     std::cout << "result: " << result << std::endl;
