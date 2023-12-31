@@ -11,9 +11,15 @@ string rtrim(const string &);
 vector<string> split(const string &);
 
 int kingdomDivision(int n, vector<vector<int>> roads) {
-    map<long, vector<long>> edges;
-    map<long, long> degree;
-    map<long, vector<long>> count;
+    map<int, vector<int>> edges;
+    map<int, int> degree;
+    
+    // this map contains the calculated count for the sub-tree where node is the root
+    // second parameter is a two element vector
+    // [0] contains the count where node and it's parent have different colors
+    // [1] contains the count where node and it's parent have same color
+    map<int, vector<long>> count;
+
     long int mod = 1E9L + 7L;
     const int FALSE = 0;
     const int TRUE = 1;
@@ -45,7 +51,10 @@ int kingdomDivision(int n, vector<vector<int>> roads) {
 
     int root = -1;
 
-    // Traverse the tree
+    // Traverse the tree from bottom up (processing leaves first and then removing those leaves from the tree) until there is only the root left
+    // Every time we process the leaf 'node' it contains the count for the two cases
+    // case 1: the node and it's parent has the same color
+    // case 2: the node and it's parent has different colors
     while(true) {
         int node = leaves.front();
         leaves.pop();
