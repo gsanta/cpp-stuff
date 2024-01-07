@@ -11,49 +11,17 @@ string ltrim(const string &);
 string rtrim(const string &);
 vector<string> split(const string &);
 
-map<int, vector<int>> spanningTree(int root, int n, map<int, vector<int>> &edges) {
-    stack<int> nodes;
-    set<int> visited;
-
-    nodes.push(root);
-    visited.insert(nodes.top());
-
-    map<int, vector<int>> newEdges;
-
-    for (int i = 0; i < n; i++) {
-        newEdges[i] = {};
-    }
-
-    while(!nodes.empty()) {
-        int node = nodes.top();
-        nodes.pop();
-
-        for (int neighbor : edges[node]) {
-            if (visited.find(neighbor) == visited.end()) {
-                newEdges[node].push_back(neighbor);
-                newEdges[neighbor].push_back(node);
-
-                visited.insert(neighbor);
-
-                nodes.push(neighbor);
-            }
-        }
-    }
-
-    return newEdges;
-}
-
 int kingdomDivision(int n, vector<vector<int>> roads) {
     map<int, vector<int>> edges;
     map<int, int> degree;
     
-    // this map contains the calculated count for the sub-tree where node is the root
+    // this map contains the calculated count for the sub-tree where key is the root
     // second parameter is a two element vector
-    // [0] contains the count where node and it's parent have different colors
-    // [1] contains the count where node and it's parent have same color
-    map<int, vector<long>> count;
+    // [0] contains the safe variations where node and it's parent have different colors
+    // [1] contains the safe variations where node and it's parent have same color
+    map<int, vector<long long>> count;
 
-    long int mod = 1E9L + 7L;
+    long long mod = 1E9L + 7L;
     const int FALSE = 0;
     const int TRUE = 1;
 
@@ -64,7 +32,7 @@ int kingdomDivision(int n, vector<vector<int>> roads) {
         count[i] = {1, 1};
     }
 
-    // Build the graph and calculate node degrees
+    // Build the graph and calculate node degrees, make the node indexes zero based
     for (const auto& road : roads) {
         int node1 = road[0] - 1;
         int node2 = road[1] - 1;
@@ -74,65 +42,54 @@ int kingdomDivision(int n, vector<vector<int>> roads) {
         degree[node2]++;
     }
 
-    int root = -1;
-
-    // edges = spanningTree(root, n, edges);
+    int root = 0;
 
     // Identify leaf nodes
     queue<int> leaves;
     for (int i = 0; i < n; ++i) {
         if (degree[i] == 1 && i != 0) {
-        // if (edges[i].size() == 1 && i != root) {
             leaves.push(i);
         }
     }
 
-    auto test = edges[1];
-
     // Traverse the tree from bottom up (processing leaves first and then removing those leaves from the tree) until there is only the root left
-    // Every time we process the leaf 'node' it contains the count for the two cases
-    // case 1: the node and it's parent has the same color
-    // case 2: the node and it's parent has different colors
+    // Every time we process the leaf 'y' it contains the count for the two cases
+    // case 1: safe variations where y and it's parent x has the same color
+    // case 2: safe variations where y and it's parent x has different colors
     while(true) {
-        int node = leaves.front();
+        int y = leaves.front();
         leaves.pop();
 
-        // when node was still a parent we stored the opposite value in it's 'false' count, namely it contained the count of those sub-arrays
-        // that are not valid when node and parent differs in colors. With this subtraction we fix the issue because we subtract from the total count the invalid count
-        count[node][FALSE] = count[node][TRUE] - count[node][FALSE];
-
-        count[node][FALSE] %= mod;
-        count[node][TRUE] %= mod;
+        // when y was still a parent we stored the opposite value in it's 'false' count, namely it contained the count of those sub-arrays
+        // that are not valid when y and parent differs in colors. With this subtraction we fix the issue because we subtract from the total count the invalid count
+        count[y][FALSE] = count[y][TRUE] - count[y][FALSE];
+        count[y][FALSE] += mod;
+        count[y][FALSE] %= mod;
 
         // Check if it's the root
-        // if (edges[node].size()) {
-        if (degree[node] == 0) {
-            root = node;
+        if (degree[y] == 0) {
+            root = y;
             break;
         } else {
-            auto nodes = edges[node];
-            int parent = edges[node][0];
-            auto parentNodes = edges[parent];
-            edges.erase(node);
-            edges[parent].erase(std::find(edges[parent].begin(), edges[parent].end(), node));
-            degree[parent] -= 1;
+            int x = edges[y][0];
 
-            auto fa = count[node][FALSE];
-            auto tr = count[node][TRUE];
+            // maintain the adjacency matrix
+            edges.erase(y);
+            edges[x].erase(std::find(edges[x].begin(), edges[x].end(), y));
+            degree[x] -= 1;
 
-            // if (edges[parent].size() == 1) {
-            if (degree[parent] == 1 || degree[parent] == 0) {
-                leaves.push(parent);
+            if (degree[x] == 1 || degree[x] == 0) {
+                leaves.push(x);
             }
 
-            // if parent and grandparent have the same color any sub-array is valid (since parent and grandparent already make a pair)
-            count[parent][TRUE] *= (count[node][TRUE] + count[node][FALSE]);
-            // we store here temporarily the invalid count (if parent and grandparent have different colors, node and parent have to have the same)
+            // if parent x and grandparent have the same color any sub-array is valid (since parent and grandparent already make a pair)
+            count[x][TRUE] *= (count[y][TRUE] + count[y][FALSE]);
+            // we store here temporarily the opposite count (if parent and grandparent have different colors, node and parent have to have the same)
             // this will be fixed when parent becomes the actual node and we subtract the invalid count from total (see code a little bit above) 
-            count[parent][FALSE] *= (count[node][FALSE]);
+            count[x][FALSE] *= (count[y][FALSE]);
 
-            // count[parent][TRUE] %= mod;
-            // count[parent][FALSE] %= mod;
+            count[x][TRUE] %= mod;
+            count[x][FALSE] %= mod;
         }
     }
 
@@ -142,7 +99,7 @@ int kingdomDivision(int n, vector<vector<int>> roads) {
 
 int main()
 {
-    ifstream file("example3.txt");
+    ifstream file("example2.txt");
 
     string n_temp;
     getline(file, n_temp);
